@@ -1110,9 +1110,9 @@
         </div>
       ` : ""}
 
-      ${(role === "owner" && t.createdBy === state.user.uid) ? `
+      ${(role === "admin" || role === "administracion" || (role === "owner" && t.createdBy === state.user.uid)) ? `
         <div class="section">
-          <h2>Acciones</h2>
+          <h2>Eliminar</h2>
           <div class="action-bar">
             <button class="btn btn-danger" id="delete-task">Borrar tarea</button>
           </div>
@@ -1196,8 +1196,12 @@
   }
 
   async function handleDeleteTask(task) {
-    // Solo el propietario que creó la tarea puede borrarla desde acá.
-    if (state.userData.role !== "owner" || task.createdBy !== state.user.uid) return;
+    // Admin y administración pueden borrar cualquier tarea;
+    // el propietario solo las que creó.
+    const r = state.userData.role;
+    const canDelete = r === "admin" || r === "administracion"
+                      || (r === "owner" && task.createdBy === state.user.uid);
+    if (!canDelete) return;
     if (!confirm(`¿Borrar la tarea "${task.title}"? Esta acción no se puede deshacer.`)) return;
     try {
       // Borrar los comentarios asociados antes de borrar la tarea.
