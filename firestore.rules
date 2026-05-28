@@ -1,0 +1,73 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ───────── Helpers ─────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function role() {
+      return userDoc().role;
+    }
+    function isAdmin() {
+      return isSignedIn() && role() == 'admin';
+    }
+    function isOwner() { return isSignedIn() && role() == 'owner'; }
+    function isEncargado() { return isSignedIn() && role() == 'encargado'; }
+    function isAdministracion() { return isSignedIn() && role() == 'administracion'; }
+
+    // ───────── /users ─────────
+    // Cualquier usuario logueado puede leer la lista (necesario para enviar mails / armar reportes).
+    // Solo el ADMIN puede crear, modificar o borrar usuarios.
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ───────── /tasks ─────────
+    match /tasks/{taskId} {
+      // Lectura: cualquier usuario logueado puede leer (la app filtra por rol del lado del cliente).
+      allow read: if isSignedIn();
+
+      // Crear: solo propietarios o admin.
+      allow create: if isSignedIn()
+                    && (isOwner() || isAdmin())
+                    && request.resource.data.createdBy == request.auth.uid
+                    && request.resource.data.status == 'pendiente';
+
+      // Actualizar: cualquier rol no-propietario puede actualizar (cambiar estado, agregar comentarios, etc).
+      // El propietario solo puede editar sus propias tareas.
+      allow update: if isSignedIn()
+                    && (
+                      isAdmin()
+                      || isEncargado()
+                      || isAdministracion()
+                      || (isOwner() && resource.data.createdBy == request.auth.uid)
+                    );
+
+      // Borrar: solo admin.
+      allow delete: if isAdmin();
+
+      // Comentarios anidados
+      match /comments/{commentId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn()
+                      && request.resource.data.byUid == request.auth.uid;
+        allow update: if false;  // Comentarios inmutables
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ───────── /mail (extensión Trigger Email) ─────────
+    // Cualquier usuario logueado puede encolar un correo.
+    match /mail/{mailId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if false;
+    }
+  }
+}

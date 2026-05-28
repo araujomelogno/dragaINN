@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#faf8f3" />
+<title>DRAGA · Tareas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300..700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #faf8f3;
+    --surface: #ffffff;
+    --surface-2: #f3efe6;
+    --ink: #1a1814;
+    --ink-2: #5a534a;
+    --ink-3: #8a8175;
+    --border: #e8e2d5;
+    --border-strong: #d4ccba;
+    --accent: #c4583a;
+    --accent-soft: #f5e1d8;
+    --st-pending: #b88a1f;
+    --st-pending-bg: #fbf1d6;
+    --st-done: #4d7841;
+    --st-done-bg: #e3edd9;
+    --st-rejected: #a23f29;
+    --st-rejected-bg: #f5dfd7;
+    --st-admin: #3e5a76;
+    --st-admin-bg: #dbe5ef;
+    --shadow-sm: 0 1px 2px rgba(26,24,20,.04), 0 1px 1px rgba(26,24,20,.03);
+    --shadow-md: 0 4px 12px rgba(26,24,20,.06), 0 2px 4px rgba(26,24,20,.04);
+    --shadow-lg: 0 12px 32px rgba(26,24,20,.10), 0 4px 8px rgba(26,24,20,.05);
+    --radius: 14px;
+    --radius-sm: 10px;
+    --radius-lg: 20px;
+    --serif: "Instrument Serif", ui-serif, Georgia, serif;
+    --sans: "Geist", system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+  input, textarea, select { font-family: inherit; font-size: 16px; color: inherit; }
+  textarea { resize: vertical; }
+  a { color: var(--accent); text-decoration: none; }
+
+  h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.01em; line-height: 1.15; }
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.2rem; }
+
+  /* ===== Layout ===== */
+  #app { min-height: 100dvh; display: flex; flex-direction: column; }
+  .screen { flex: 1; display: none; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* ===== Login ===== */
+  .login-screen {
+    align-items: center; justify-content: center;
+    padding: 2rem; min-height: 100dvh;
+    background:
+      radial-gradient(circle at 15% 0%, #efe6d3 0%, transparent 40%),
+      radial-gradient(circle at 90% 100%, #f5d8cc 0%, transparent 35%),
+      var(--bg);
+  }
+  .login-card {
+    width: 100%; max-width: 380px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 2.25rem 1.75rem;
+    box-shadow: var(--shadow-md);
+  }
+  .login-brand { text-align: center; margin-bottom: 1.75rem; }
+  .login-brand .mark {
+    font-family: var(--serif); font-size: 2.8rem; line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .login-brand .mark em { color: var(--accent); font-style: italic; }
+  .login-brand .sub {
+    font-size: .78rem; color: var(--ink-3); letter-spacing: .15em;
+    text-transform: uppercase; margin-top: .5rem;
+  }
+
+  /* ===== Forms ===== */
+  .form-group { margin-bottom: 1rem; }
+  .form-group label {
+    display: block; font-size: .78rem; color: var(--ink-2);
+    margin-bottom: .4rem; letter-spacing: .03em; font-weight: 500;
+  }
+  .input, .textarea, .select {
+    width: 100%; padding: .8rem .9rem; background: var(--surface);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    color: var(--ink); transition: border-color .15s, box-shadow .15s;
+  }
+  .input:focus, .textarea:focus, .select:focus {
+    outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(26,24,20,.06);
+  }
+  .textarea { min-height: 100px; }
+  .select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%235a534a' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>"); background-repeat: no-repeat; background-position: right .9rem center; padding-right: 2.5rem; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    padding: .85rem 1.2rem; font-weight: 500; font-size: .95rem;
+    border-radius: var(--radius-sm); transition: transform .1s, background .15s, border-color .15s;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--ink); color: var(--bg); }
+  .btn-primary:hover { background: #2a2620; }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-accent:hover { background: #a8472d; }
+  .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--border-strong); }
+  .btn-ghost:hover { background: var(--surface-2); }
+  .btn-danger { background: var(--st-rejected-bg); color: var(--st-rejected); border: 1px solid transparent; }
+  .btn-danger:hover { background: #f0d2c5; }
+  .btn-success { background: var(--st-done-bg); color: var(--st-done); border: 1px solid transparent; }
+  .btn-success:hover { background: #d6e3c8; }
+  .btn-info { background: var(--st-admin-bg); color: var(--st-admin); }
+  .btn-block { width: 100%; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .error-msg {
+    padding: .7rem .9rem; background: var(--st-rejected-bg); color: var(--st-rejected);
+    border-radius: var(--radius-sm); font-size: .85rem; margin-bottom: 1rem;
+  }
+  .info-msg {
+    padding: .7rem .9rem; background: var(--st-admin-bg); color: var(--st-admin);
+    border-radius: var(--radius-sm); font-size: .85rem; margin-bottom: 1rem;
+  }
+  .success-msg {
+    padding: .7rem .9rem; background: var(--st-done-bg); color: var(--st-done);
+    border-radius: var(--radius-sm); font-size: .85rem; margin-bottom: 1rem;
+  }
+
+  /* ===== App shell ===== */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(250,248,243,.85);
+    backdrop-filter: saturate(180%) blur(12px);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: .85rem 1.1rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-title { font-family: var(--serif); font-size: 1.4rem; line-height: 1; }
+  .topbar-title em { color: var(--accent); font-style: italic; }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--ink); color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 500; font-size: .82rem;
+  }
+  .menu {
+    position: absolute; top: calc(100% + 6px); right: 1rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow-lg);
+    min-width: 220px; padding: .5rem; z-index: 60;
+  }
+  .menu-info {
+    padding: .6rem .7rem .8rem; border-bottom: 1px solid var(--border);
+    margin-bottom: .35rem;
+  }
+  .menu-info .name { font-weight: 500; font-size: .92rem; }
+  .menu-info .role { font-size: .78rem; color: var(--ink-3); margin-top: .15rem; }
+  .menu-item {
+    display: block; width: 100%; text-align: left;
+    padding: .65rem .7rem; border-radius: 8px; font-size: .9rem;
+  }
+  .menu-item:hover { background: var(--surface-2); }
+
+  .main {
+    flex: 1; padding: 1.1rem 1.1rem 6rem;
+    max-width: 720px; margin: 0 auto; width: 100%;
+  }
+  .page-title { margin-bottom: 1.2rem; display: flex; align-items: baseline; gap: .8rem; }
+  .page-title h1 { font-size: 1.85rem; }
+  .page-title .count { color: var(--ink-3); font-size: .9rem; }
+
+  /* ===== Bottom nav ===== */
+  .bottomnav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+    background: rgba(250,248,243,.92);
+    backdrop-filter: saturate(180%) blur(12px);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    border-top: 1px solid var(--border);
+    padding: .55rem 0 calc(.55rem + env(safe-area-inset-bottom));
+    display: flex; justify-content: space-around;
+  }
+  .bottomnav button {
+    flex: 1; padding: .4rem .3rem;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--ink-3); font-size: .72rem; font-weight: 500;
+    border-radius: 10px; max-width: 96px;
+  }
+  .bottomnav button.active { color: var(--ink); }
+  .bottomnav svg { width: 22px; height: 22px; stroke-width: 1.7; }
+
+  /* ===== Filter pills ===== */
+  .pills {
+    display: flex; gap: .4rem; overflow-x: auto;
+    padding-bottom: .8rem; margin-bottom: .6rem;
+    scrollbar-width: none;
+  }
+  .pills::-webkit-scrollbar { display: none; }
+  .pill {
+    padding: .4rem .85rem; border-radius: 999px;
+    font-size: .8rem; font-weight: 500;
+    background: var(--surface); border: 1px solid var(--border-strong);
+    color: var(--ink-2); white-space: nowrap;
+  }
+  .pill.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  /* ===== Status badge ===== */
+  .badge {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .25rem .6rem; border-radius: 999px;
+    font-size: .72rem; font-weight: 500; letter-spacing: .01em;
+  }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .badge.pendiente { background: var(--st-pending-bg); color: var(--st-pending); }
+  .badge.realizada { background: var(--st-done-bg); color: var(--st-done); }
+  .badge.rechazada { background: var(--st-rejected-bg); color: var(--st-rejected); }
+  .badge.en_administracion { background: var(--st-admin-bg); color: var(--st-admin); }
+
+  /* ===== Task list ===== */
+  .task-list { display: flex; flex-direction: column; gap: .65rem; }
+  .task-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1rem;
+    box-shadow: var(--shadow-sm); cursor: pointer;
+    transition: transform .12s, box-shadow .12s, border-color .12s;
+  }
+  .task-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+  .task-card:active { transform: scale(.99); }
+  .task-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: .8rem; margin-bottom: .35rem; }
+  .task-card-title { font-weight: 500; font-size: 1rem; line-height: 1.35; flex: 1; }
+  .task-card-desc {
+    color: var(--ink-2); font-size: .87rem; line-height: 1.45;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; margin-bottom: .55rem;
+  }
+  .task-card-meta {
+    display: flex; gap: .8rem; font-size: .75rem;
+    color: var(--ink-3); align-items: center; flex-wrap: wrap;
+  }
+  .task-card-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--ink-3); }
+
+  .empty {
+    text-align: center; padding: 4rem 1rem; color: var(--ink-3);
+  }
+  .empty-mark { font-family: var(--serif); font-size: 3rem; color: var(--border-strong); }
+  .empty p { margin-top: .5rem; font-size: .9rem; }
+
+  /* ===== Task detail ===== */
+  .detail-back {
+    display: inline-flex; align-items: center; gap: .35rem;
+    color: var(--ink-2); font-size: .85rem; padding: .4rem 0;
+    margin-bottom: .8rem;
+  }
+  .detail-back:hover { color: var(--ink); }
+
+  .detail-head { margin-bottom: 1.5rem; }
+  .detail-head h1 { font-size: 1.65rem; margin-bottom: .6rem; }
+  .detail-head .meta {
+    font-size: .8rem; color: var(--ink-3);
+    display: flex; flex-wrap: wrap; gap: .3rem .6rem; align-items: center;
+    margin-top: .8rem;
+  }
+
+  .section { margin-bottom: 1.75rem; }
+  .section h2 {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .12em;
+    color: var(--ink-3); font-family: var(--sans); font-weight: 500;
+    margin-bottom: .65rem;
+  }
+
+  .description {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1rem; line-height: 1.55;
+    white-space: pre-wrap; font-size: .92rem;
+  }
+
+  .photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+  .photos img {
+    width: 100%; aspect-ratio: 1; object-fit: cover;
+    border-radius: var(--radius-sm); cursor: pointer;
+    border: 1px solid var(--border);
+  }
+
+  .photo-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,.92);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100; padding: 1rem;
+  }
+  .photo-modal.active { display: flex; }
+  .photo-modal img { max-width: 100%; max-height: 90vh; border-radius: 8px; }
+  .photo-modal-close {
+    position: absolute; top: 1rem; right: 1rem;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,.15); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+  }
+
+  /* ===== Timeline ===== */
+  .timeline { position: relative; padding-left: 1.3rem; }
+  .timeline::before {
+    content: ""; position: absolute; left: 5px; top: 6px; bottom: 6px;
+    width: 1px; background: var(--border-strong);
+  }
+  .timeline-item { position: relative; padding-bottom: 1.1rem; }
+  .timeline-item::before {
+    content: ""; position: absolute; left: -1.3rem; top: 5px;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--ink-3);
+  }
+  .timeline-item.action::before { border-color: var(--accent); }
+  .timeline-meta { font-size: .75rem; color: var(--ink-3); margin-bottom: .15rem; }
+  .timeline-text { font-size: .9rem; line-height: 1.45; }
+  .timeline-author { font-weight: 500; }
+
+  /* ===== Comments ===== */
+  .comments { display: flex; flex-direction: column; gap: .7rem; }
+  .comment {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: .85rem 1rem;
+  }
+  .comment.self { background: var(--surface-2); }
+  .comment-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: .8rem; margin-bottom: .35rem;
+  }
+  .comment-author { font-weight: 500; font-size: .88rem; }
+  .comment-author .role-tag {
+    font-size: .7rem; color: var(--ink-3); font-weight: 400;
+    margin-left: .35rem;
+  }
+  .comment-time { font-size: .73rem; color: var(--ink-3); }
+  .comment-body { font-size: .92rem; line-height: 1.5; white-space: pre-wrap; }
+
+  .comment-form { margin-top: 1rem; }
+  .comment-form textarea {
+    width: 100%; padding: .8rem .9rem; min-height: 80px;
+    background: var(--surface); border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+  }
+  .comment-form-actions {
+    display: flex; justify-content: flex-end; margin-top: .55rem;
+  }
+
+  /* ===== Action bar ===== */
+  .action-bar {
+    display: flex; gap: .5rem; flex-wrap: wrap;
+    padding: 1rem; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+  }
+  .action-bar .btn { flex: 1; min-width: 130px; font-size: .85rem; padding: .7rem .8rem; }
+
+  /* ===== FAB ===== */
+  .fab {
+    position: fixed; right: 1.2rem;
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--accent); color: white;
+    box-shadow: var(--shadow-lg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 30; transition: transform .12s;
+  }
+  .fab:active { transform: scale(.94); }
+
+  /* ===== Modal/Sheet ===== */
+  .sheet-overlay {
+    position: fixed; inset: 0; background: rgba(26,24,20,.45);
+    display: none; z-index: 80; opacity: 0; transition: opacity .25s;
+  }
+  .sheet-overlay.active { display: block; opacity: 1; }
+  .sheet {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 81;
+    background: var(--bg); border-radius: 24px 24px 0 0;
+    max-height: 92vh; overflow-y: auto;
+    transform: translateY(100%); transition: transform .28s cubic-bezier(.2,.8,.2,1);
+    box-shadow: 0 -8px 28px rgba(0,0,0,.18);
+  }
+  .sheet.active { transform: translateY(0); }
+  .sheet-handle {
+    width: 36px; height: 4px; background: var(--border-strong);
+    border-radius: 2px; margin: .55rem auto;
+  }
+  .sheet-content { padding: .5rem 1.25rem 2rem; max-width: 600px; margin: 0 auto; }
+  .sheet h2 {
+    font-family: var(--serif); margin: .4rem 0 1.2rem;
+    font-size: 1.6rem;
+  }
+
+  /* ===== File upload ===== */
+  .file-list {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem;
+    margin-top: .5rem;
+  }
+  .file-preview {
+    aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden;
+    position: relative; border: 1px solid var(--border);
+  }
+  .file-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .file-preview button {
+    position: absolute; top: 4px; right: 4px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(0,0,0,.6); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; line-height: 1;
+  }
+
+  /* ===== Reports ===== */
+  .report-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: .65rem;
+    margin-bottom: 1.2rem;
+  }
+  .report-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1rem;
+  }
+  .report-card .label {
+    font-size: .73rem; text-transform: uppercase; letter-spacing: .1em;
+    color: var(--ink-3); margin-bottom: .35rem; font-weight: 500;
+  }
+  .report-card .value {
+    font-family: var(--serif); font-size: 2.1rem; line-height: 1;
+  }
+  .report-card .sub { font-size: .78rem; color: var(--ink-3); margin-top: .25rem; }
+  .report-card.full { grid-column: 1 / -1; }
+
+  .bar-row {
+    display: flex; align-items: center; gap: .7rem; margin-bottom: .5rem;
+    font-size: .85rem;
+  }
+  .bar-row .name { width: 110px; flex-shrink: 0; color: var(--ink-2); }
+  .bar-row .bar-track {
+    flex: 1; height: 8px; background: var(--surface-2);
+    border-radius: 4px; overflow: hidden;
+  }
+  .bar-row .bar-fill { height: 100%; border-radius: 4px; transition: width .4s; }
+  .bar-row .num { width: 30px; text-align: right; font-weight: 500; }
+
+  .date-range {
+    display: grid; grid-template-columns: 1fr 1fr; gap: .55rem;
+    margin-bottom: 1rem;
+  }
+  .date-range label { font-size: .75rem; color: var(--ink-2); margin-bottom: .25rem; display: block; }
+
+  /* ===== Users (admin) ===== */
+  .user-row {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .85rem; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: .55rem;
+  }
+  .user-row .avatar { width: 38px; height: 38px; flex-shrink: 0; }
+  .user-row .info { flex: 1; min-width: 0; }
+  .user-row .info .name { font-weight: 500; font-size: .92rem; }
+  .user-row .info .email { font-size: .78rem; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .user-row .role-select { font-size: .8rem; padding: .4rem .55rem; }
+
+  /* ===== Loader ===== */
+  .loader {
+    display: flex; align-items: center; justify-content: center;
+    padding: 3rem 1rem; color: var(--ink-3);
+  }
+  .spinner {
+    width: 22px; height: 22px; border: 2px solid var(--border-strong);
+    border-top-color: var(--ink); border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .splash {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 1.2rem; z-index: 200;
+    transition: opacity .3s;
+  }
+  .splash.hide { opacity: 0; pointer-events: none; }
+  .splash .mark { font-family: var(--serif); font-size: 3.2rem; }
+  .splash .mark em { color: var(--accent); font-style: italic; }
+
+  /* ===== Setup banner ===== */
+  .setup-banner {
+    background: #fff8d6; border: 1px solid #e8d97a;
+    color: #5a4a14; padding: 1rem; border-radius: var(--radius);
+    margin: 1rem; font-size: .85rem; line-height: 1.5;
+  }
+  .setup-banner strong { display: block; margin-bottom: .4rem; }
+  .setup-banner code {
+    background: rgba(0,0,0,.07); padding: 1px 5px; border-radius: 4px;
+    font-size: .8rem;
+  }
+
+  /* ===== Responsive ===== */
+  @media (min-width: 640px) {
+    .photos { grid-template-columns: repeat(4, 1fr); }
+    .file-list { grid-template-columns: repeat(4, 1fr); }
+    .report-grid { grid-template-columns: repeat(3, 1fr); }
+    .action-bar .btn { flex: 0 1 auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="splash" id="splash">
+  <div class="mark">DR<em>A</em>GA</div>
+  <div class="spinner"></div>
+</div>
+
+<div id="app">
+
+  <!-- ============ SETUP BANNER ============ -->
+  <div id="setup-banner" class="setup-banner" style="display:none">
+    <strong>⚙️ Falta configurar Firebase</strong>
+    Editá <code>index.html</code> y reemplazá el objeto <code>firebaseConfig</code> con los datos de tu proyecto Firebase. Mirá el <code>README.md</code> para los pasos completos.
+  </div>
+
+  <!-- ============ LOGIN ============ -->
+  <section class="screen login-screen" id="screen-login">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="mark">DR<em>A</em>GA</div>
+        <div class="sub">Tareas del edificio</div>
+      </div>
+      <form id="login-form">
+        <div id="login-error"></div>
+        <div class="form-group">
+          <label for="login-email">Correo</label>
+          <input class="input" type="email" id="login-email" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="login-pass">Contraseña</label>
+          <input class="input" type="password" id="login-pass" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="login-btn">Ingresar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ MAIN APP ============ -->
+  <section class="screen" id="screen-app">
+    <header class="topbar">
+      <div class="topbar-title">DR<em>A</em>GA</div>
+      <button class="avatar" id="avatar-btn" aria-label="Menú">--</button>
+      <div class="menu" id="user-menu" style="display:none">
+        <div class="menu-info">
+          <div class="name" id="menu-name"></div>
+          <div class="role" id="menu-role"></div>
+        </div>
+        <button class="menu-item" id="menu-logout">Cerrar sesión</button>
+      </div>
+    </header>
+
+    <main class="main" id="main-content">
+      <!-- Dynamic content -->
+    </main>
+
+    <nav class="bottomnav" id="bottomnav">
+      <button data-tab="tasks" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Tareas
+      </button>
+      <button data-tab="reports">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18M7 14l4-4 4 4 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Reportes
+      </button>
+      <button data-tab="users" id="nav-users" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Usuarios
+      </button>
+    </nav>
+
+    <button class="fab" id="fab-new-task" style="display:none" aria-label="Nueva tarea">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+    </button>
+  </section>
+
+  <!-- ============ Sheets ============ -->
+  <div class="sheet-overlay" id="sheet-overlay"></div>
+
+  <!-- New task sheet -->
+  <div class="sheet" id="sheet-new-task">
+    <div class="sheet-handle"></div>
+    <div class="sheet-content">
+      <h2>Nueva tarea</h2>
+      <form id="new-task-form">
+        <div id="new-task-error"></div>
+        <div class="form-group">
+          <label for="nt-title">Título</label>
+          <input class="input" id="nt-title" required maxlength="120" />
+        </div>
+        <div class="form-group">
+          <label for="nt-desc">Descripción</label>
+          <textarea class="textarea" id="nt-desc" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Fotos (opcional)</label>
+          <input type="file" id="nt-files" accept="image/*" multiple capture="environment" style="display:none" />
+          <button type="button" class="btn btn-ghost btn-block" id="nt-files-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Agregar fotos
+          </button>
+          <div class="file-list" id="nt-file-list"></div>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-top:1.2rem">
+          <button type="button" class="btn btn-ghost" id="nt-cancel" style="flex:1">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="nt-submit" style="flex:2">Crear tarea</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- New user sheet -->
+  <div class="sheet" id="sheet-new-user">
+    <div class="sheet-handle"></div>
+    <div class="sheet-content">
+      <h2>Nuevo usuario</h2>
+      <form id="new-user-form">
+        <div id="new-user-error"></div>
+        <div class="form-group">
+          <label for="nu-name">Nombre</label>
+          <input class="input" id="nu-name" required maxlength="60" />
+        </div>
+        <div class="form-group">
+          <label for="nu-email">Correo</label>
+          <input class="input" type="email" id="nu-email" required />
+        </div>
+        <div class="form-group">
+          <label for="nu-pass">Contraseña inicial</label>
+          <input class="input" type="text" id="nu-pass" required minlength="6" />
+        </div>
+        <div class="form-group">
+          <label for="nu-role">Rol</label>
+          <select class="select" id="nu-role" required>
+            <option value="owner">Propietario</option>
+            <option value="encargado">Encargado</option>
+            <option value="administracion">Administración</option>
+            <option value="admin">Administrador (sistema)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="nu-apt">Apartamento (opcional)</label>
+          <input class="input" id="nu-apt" maxlength="20" />
+        </div>
+        <div style="display:flex;gap:.5rem;margin-top:1.2rem">
+          <button type="button" class="btn btn-ghost" id="nu-cancel" style="flex:1">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="nu-submit" style="flex:2">Crear usuario</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="photo-modal" id="photo-modal">
+    <button class="photo-modal-close" id="photo-modal-close">×</button>
+    <img id="photo-modal-img" />
+  </div>
+
+</div>
+
+<script type="module">
+  // =====================================================
+  // FIREBASE CONFIG — REEMPLAZAR CON DATOS DE TU PROYECTO
+  // =====================================================
+
+
+  const firebaseConfig = {
+  apiKey: "AIzaSyAl7JL1tEmiCEbZGpMElC6aijuU1YOP2a8",
+  authDomain: "draga-inn-604e9.firebaseapp.com",
+  projectId: "draga-inn-604e9",
+  storageBucket: "draga-inn-604e9.firebasestorage.app",
+  messagingSenderId: "257809583453",
+  appId: "1:257809583453:web:5f657221b8206be3ca6cb4"
+};
+
+  // Nombre del edificio (cambialo si querés)
+  const BUILDING_NAME = "DRAGA-INN";
+
+  // Mostrar banner si no se configuró
+  if (firebaseConfig.apiKey === "REEMPLAZAR_API_KEY") {
+    document.getElementById("setup-banner").style.display = "block";
+  }
+
+  // =====================================================
+  // IMPORTS
+  // =====================================================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+    createUserWithEmailAndPassword
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, setDoc, updateDoc, addDoc,
+    collection, query, where, orderBy, onSnapshot, getDocs,
+    serverTimestamp, arrayUnion, deleteDoc, Timestamp
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import {
+    getStorage, ref as storageRef, uploadBytes, getDownloadURL
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
+
+  // =====================================================
+  // INIT
+  // =====================================================
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  // App secundaria para crear usuarios sin desloguear al admin
+  const secondaryApp = initializeApp(firebaseConfig, "Secondary");
+  const secondaryAuth = getAuth(secondaryApp);
+
+  // =====================================================
+  // STATE
+  // =====================================================
+  const STATUS = {
+    pendiente: { label: "Pendiente", className: "pendiente" },
+    realizada: { label: "Realizada", className: "realizada" },
+    rechazada: { label: "Rechazada", className: "rechazada" },
+    en_administracion: { label: "En administración", className: "en_administracion" }
+  };
+  const ROLES = {
+    owner: "Propietario",
+    encargado: "Encargado",
+    administracion: "Administración",
+    admin: "Administrador"
+  };
+
+  const state = {
+    user: null,            // Auth user
+    userData: null,        // Firestore /users/{uid}
+    tab: "tasks",          // tasks | reports | users
+    tasks: [],
+    users: [],
+    filterStatus: "todas",
+    currentTaskId: null,
+    unsubscribers: [],
+    newTaskFiles: []
+  };
+
+  // =====================================================
+  // HELPERS
+  // =====================================================
+  const $ = (id) => document.getElementById(id);
+  const fmt = (d) => {
+    if (!d) return "";
+    const date = d.toDate ? d.toDate() : (d instanceof Date ? d : new Date(d));
+    return date.toLocaleString("es-UY", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" });
+  };
+  const fmtShort = (d) => {
+    if (!d) return "";
+    const date = d.toDate ? d.toDate() : (d instanceof Date ? d : new Date(d));
+    const today = new Date();
+    const sameDay = date.toDateString() === today.toDateString();
+    if (sameDay) return date.toLocaleTimeString("es-UY", { hour:"2-digit", minute:"2-digit" });
+    return date.toLocaleDateString("es-UY", { day:"2-digit", month:"short" });
+  };
+  const initials = (name) => {
+    if (!name) return "?";
+    const parts = name.trim().split(/\s+/);
+    return ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase() || "?";
+  };
+  const escapeHtml = (s) => (s || "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  function showError(elId, msg) {
+    const el = $(elId);
+    el.innerHTML = `<div class="error-msg">${escapeHtml(msg)}</div>`;
+    setTimeout(() => { if (el.querySelector(".error-msg")) el.innerHTML = ""; }, 6000);
+  }
+  function clearError(elId) { $(elId).innerHTML = ""; }
+
+  // =====================================================
+  // AUTH
+  // =====================================================
+  $("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearError("login-error");
+    const btn = $("login-btn");
+    btn.disabled = true; btn.textContent = "Ingresando…";
+    try {
+      const email = $("login-email").value.trim();
+      const pass = $("login-pass").value;
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (err) {
+      console.error(err);
+      let msg = "No se pudo ingresar.";
+      if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found")
+        msg = "Correo o contraseña incorrectos.";
+      else if (err.code === "auth/invalid-email") msg = "Correo inválido.";
+      else if (err.code === "auth/too-many-requests") msg = "Demasiados intentos. Probá más tarde.";
+      else if (err.code === "auth/network-request-failed") msg = "Sin conexión.";
+      showError("login-error", msg);
+    } finally {
+      btn.disabled = false; btn.textContent = "Ingresar";
+    }
+  });
+
+  $("menu-logout").addEventListener("click", async () => {
+    await signOut(auth);
+    $("user-menu").style.display = "none";
+  });
+
+  $("avatar-btn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    const m = $("user-menu");
+    m.style.display = m.style.display === "none" ? "block" : "none";
+  });
+  document.addEventListener("click", () => { $("user-menu").style.display = "none"; });
+
+  onAuthStateChanged(auth, async (user) => {
+    cleanupSubscriptions();
+    if (!user) {
+      state.user = null; state.userData = null;
+      $("screen-app").classList.remove("active");
+      $("screen-login").classList.add("active");
+      $("splash").classList.add("hide");
+      return;
+    }
+    // Get user profile
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid));
+      if (!snap.exists()) {
+        await signOut(auth);
+        showError("login-error", "Tu usuario no tiene perfil. Pedile a un administrador que te dé de alta.");
+        return;
+      }
+      state.user = user;
+      state.userData = { id: user.uid, ...snap.data() };
+      enterApp();
+    } catch (err) {
+      console.error(err);
+      showError("login-error", "Error al cargar tu perfil.");
+      await signOut(auth);
+    }
+  });
+
+  function cleanupSubscriptions() {
+    state.unsubscribers.forEach(u => { try { u(); } catch(e){} });
+    state.unsubscribers = [];
+  }
+
+  // =====================================================
+  // ENTER APP
+  // =====================================================
+  function enterApp() {
+    $("screen-login").classList.remove("active");
+    $("screen-app").classList.add("active");
+    $("splash").classList.add("hide");
+
+    $("avatar-btn").textContent = initials(state.userData.name);
+    $("menu-name").textContent = state.userData.name || state.user.email;
+    $("menu-role").textContent = ROLES[state.userData.role] || state.userData.role;
+
+    // Show/hide nav items by role
+    $("nav-users").style.display = state.userData.role === "admin" ? "" : "none";
+    $("fab-new-task").style.display = (state.userData.role === "owner" || state.userData.role === "admin") ? "" : "none";
+
+    // Subscribe tasks
+    subscribeTasks();
+    // Tab nav
+    document.querySelectorAll(".bottomnav button").forEach(btn => {
+      btn.onclick = () => switchTab(btn.dataset.tab);
+    });
+    state.tab = "tasks";
+    switchTab("tasks");
+  }
+
+  function switchTab(tab) {
+    state.tab = tab;
+    state.currentTaskId = null;
+    state.currentComments = null;
+    document.querySelectorAll(".bottomnav button").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.tab === tab);
+    });
+    $("fab-new-task").style.display = (tab === "tasks" && (state.userData.role === "owner" || state.userData.role === "admin")) ? "" : "none";
+    if (tab === "tasks") renderTaskList();
+    else if (tab === "reports") renderReports();
+    else if (tab === "users") renderUsers();
+  }
+
+  // =====================================================
+  // TASKS — subscription
+  // =====================================================
+  function subscribeTasks() {
+    const q = query(collection(db, "tasks"), orderBy("createdAt", "desc"));
+    const unsub = onSnapshot(q, (snap) => {
+      state.tasks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (state.tab === "tasks" && !state.currentTaskId) renderTaskList();
+      if (state.tab === "reports") renderReports();
+      if (state.tab === "tasks" && state.currentTaskId) renderTaskDetail(state.currentTaskId);
+    }, (err) => {
+      console.error("tasks listener error:", err);
+      $("main-content").innerHTML = `<div class="error-msg">No se pudieron cargar las tareas. ${escapeHtml(err.message)}</div>`;
+    });
+    state.unsubscribers.push(unsub);
+  }
+
+  function visibleTasks() {
+    const role = state.userData.role;
+    if (role === "administracion") {
+      // Administración: ven las tareas actualmente en administración
+      // o cualquiera que haya pasado por administración alguna vez.
+      return state.tasks.filter(t => {
+        if (t.status === "en_administracion") return true;
+        const hist = t.history || [];
+        return hist.some(h => h.from === "en_administracion" || h.to === "en_administracion");
+      });
+    }
+    return state.tasks;
+  }
+
+  // =====================================================
+  // TASKS — list
+  // =====================================================
+  function renderTaskList() {
+    const role = state.userData.role;
+    const all = visibleTasks();
+    const statuses = ["todas", "pendiente", "realizada", "en_administracion", "rechazada"];
+
+    const filtered = state.filterStatus === "todas"
+      ? all
+      : all.filter(t => t.status === state.filterStatus);
+
+    let html = `
+      <div class="page-title">
+        <h1>Tareas</h1>
+        <span class="count">${filtered.length}</span>
+      </div>
+      <div class="pills">
+        ${statuses.map(s => `
+          <button class="pill ${state.filterStatus === s ? "active" : ""}" data-status="${s}">
+            ${s === "todas" ? "Todas" : STATUS[s].label}
+          </button>
+        `).join("")}
+      </div>
+    `;
+
+    if (filtered.length === 0) {
+      html += `
+        <div class="empty">
+          <div class="empty-mark">∅</div>
+          <p>${state.filterStatus === "todas" ? "Todavía no hay tareas." : "No hay tareas con este estado."}</p>
+        </div>
+      `;
+    } else {
+      html += `<div class="task-list">${filtered.map(taskCardHTML).join("")}</div>`;
+    }
+
+    $("main-content").innerHTML = html;
+
+    document.querySelectorAll(".pill").forEach(p => {
+      p.onclick = () => { state.filterStatus = p.dataset.status; renderTaskList(); };
+    });
+    document.querySelectorAll(".task-card").forEach(c => {
+      c.onclick = () => openTask(c.dataset.id);
+    });
+  }
+
+  function taskCardHTML(t) {
+    const commentsCount = (t.commentsCount || 0);
+    const photosCount = (t.photos || []).length;
+    return `
+      <article class="task-card" data-id="${t.id}">
+        <div class="task-card-head">
+          <div class="task-card-title">${escapeHtml(t.title)}</div>
+          <span class="badge ${STATUS[t.status].className}">${STATUS[t.status].label}</span>
+        </div>
+        <div class="task-card-desc">${escapeHtml(t.description)}</div>
+        <div class="task-card-meta">
+          <span>${escapeHtml(t.createdByName)}</span>
+          <span class="dot"></span>
+          <span>${fmtShort(t.createdAt)}</span>
+          ${photosCount ? `<span class="dot"></span><span>📷 ${photosCount}</span>` : ""}
+          ${commentsCount ? `<span class="dot"></span><span>💬 ${commentsCount}</span>` : ""}
+        </div>
+      </article>
+    `;
+  }
+
+  // =====================================================
+  // TASKS — detail
+  // =====================================================
+  async function openTask(taskId) {
+    state.currentTaskId = taskId;
+    renderTaskDetail(taskId);
+    // Subscribe to comments
+    const q = query(collection(db, "tasks", taskId, "comments"), orderBy("createdAt", "asc"));
+    const unsub = onSnapshot(q, (snap) => {
+      state.currentComments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderTaskDetail(taskId);
+    });
+    state.unsubscribers.push(unsub);
+  }
+
+  function closeTask() {
+    state.currentTaskId = null;
+    state.currentComments = null;
+    cleanupSubscriptions();
+    subscribeTasks();
+    renderTaskList();
+  }
+
+  function renderTaskDetail(taskId) {
+    const t = state.tasks.find(x => x.id === taskId);
+    if (!t) {
+      $("main-content").innerHTML = `<div class="loader"><div class="spinner"></div></div>`;
+      return;
+    }
+    const role = state.userData.role;
+    const comments = state.currentComments || [];
+
+    // Build history timeline (status changes)
+    const history = (t.history || []).slice().sort((a,b) => {
+      const ta = a.at?.toMillis ? a.at.toMillis() : 0;
+      const tb = b.at?.toMillis ? b.at.toMillis() : 0;
+      return ta - tb;
+    });
+
+    const photosHTML = (t.photos && t.photos.length) ? `
+      <div class="section">
+        <h2>Fotos</h2>
+        <div class="photos">
+          ${t.photos.map(url => `<img src="${escapeHtml(url)}" data-url="${escapeHtml(url)}" alt="" />`).join("")}
+        </div>
+      </div>
+    ` : "";
+
+    // Action buttons by role + state
+    let actions = [];
+    if (role === "encargado") {
+      if (t.status === "pendiente") {
+        actions.push({ label: "Marcar realizada", className: "btn-success", action: "set:realizada" });
+        actions.push({ label: "Enviar a administración", className: "btn-info", action: "set:en_administracion" });
+        actions.push({ label: "Rechazar", className: "btn-danger", action: "set:rechazada" });
+      } else if (t.status === "realizada" || t.status === "rechazada") {
+        actions.push({ label: "Reabrir", className: "btn-ghost", action: "set:pendiente" });
+      }
+    } else if (role === "administracion") {
+      if (t.status === "en_administracion") {
+        actions.push({ label: "Marcar realizada", className: "btn-success", action: "set:realizada" });
+        actions.push({ label: "Devolver al encargado", className: "btn-info", action: "set:pendiente" });
+        actions.push({ label: "Rechazar", className: "btn-danger", action: "set:rechazada" });
+      } else if (t.status === "realizada" || t.status === "rechazada") {
+        actions.push({ label: "Reabrir en administración", className: "btn-ghost", action: "set:en_administracion" });
+      }
+    } else if (role === "admin") {
+      // Admin del sistema puede transicionar a cualquier estado
+      if (t.status !== "pendiente") actions.push({ label: "→ Pendiente", className: "btn-ghost", action: "set:pendiente" });
+      if (t.status !== "realizada") actions.push({ label: "→ Realizada", className: "btn-success", action: "set:realizada" });
+      if (t.status !== "en_administracion") actions.push({ label: "→ Administración", className: "btn-info", action: "set:en_administracion" });
+      if (t.status !== "rechazada") actions.push({ label: "→ Rechazada", className: "btn-danger", action: "set:rechazada" });
+    }
+
+    const html = `
+      <button class="detail-back" id="detail-back">← Volver</button>
+      <div class="detail-head">
+        <h1>${escapeHtml(t.title)}</h1>
+        <span class="badge ${STATUS[t.status].className}">${STATUS[t.status].label}</span>
+        <div class="meta">
+          <span>Creada por <strong>${escapeHtml(t.createdByName)}</strong></span>
+          <span>·</span>
+          <span>${fmt(t.createdAt)}</span>
+          ${t.createdByApt ? `<span>·</span><span>Apto. ${escapeHtml(t.createdByApt)}</span>` : ""}
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Descripción</h2>
+        <div class="description">${escapeHtml(t.description)}</div>
+      </div>
+
+      ${photosHTML}
+
+      ${history.length ? `
+        <div class="section">
+          <h2>Evolución</h2>
+          <div class="timeline">
+            ${history.map(h => `
+              <div class="timeline-item action">
+                <div class="timeline-meta">${fmt(h.at)}</div>
+                <div class="timeline-text">
+                  <span class="timeline-author">${escapeHtml(h.byName || "—")}</span>
+                  cambió el estado a
+                  <span class="badge ${STATUS[h.to]?.className || ""}" style="vertical-align:middle">${STATUS[h.to]?.label || h.to}</span>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      ` : ""}
+
+      ${actions.length ? `
+        <div class="section">
+          <h2>Acciones</h2>
+          <div class="action-bar">
+            ${actions.map(a => `<button class="btn ${a.className}" data-action="${a.action}">${a.label}</button>`).join("")}
+          </div>
+        </div>
+      ` : ""}
+
+      <div class="section">
+        <h2>Comentarios (${comments.length})</h2>
+        ${comments.length === 0 ? `<p style="color:var(--ink-3); font-size:.88rem">Aún no hay comentarios.</p>` : `
+          <div class="comments">
+            ${comments.map(c => `
+              <div class="comment ${c.byUid === state.user.uid ? "self" : ""}">
+                <div class="comment-head">
+                  <div class="comment-author">
+                    ${escapeHtml(c.byName)}
+                    <span class="role-tag">· ${ROLES[c.byRole] || c.byRole}</span>
+                  </div>
+                  <div class="comment-time">${fmtShort(c.createdAt)}</div>
+                </div>
+                <div class="comment-body">${escapeHtml(c.text)}</div>
+              </div>
+            `).join("")}
+          </div>
+        `}
+        <div class="comment-form">
+          <textarea id="comment-text" placeholder="Escribí un comentario…"></textarea>
+          <div id="comment-error"></div>
+          <div class="comment-form-actions">
+            <button class="btn btn-primary" id="comment-submit">Enviar comentario</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    $("main-content").innerHTML = html;
+
+    $("detail-back").onclick = closeTask;
+
+    document.querySelectorAll("[data-action]").forEach(btn => {
+      btn.onclick = () => handleStatusChange(t, btn.dataset.action.split(":")[1]);
+    });
+
+    document.querySelectorAll(".photos img").forEach(img => {
+      img.onclick = () => openPhoto(img.dataset.url);
+    });
+
+    $("comment-submit").onclick = () => submitComment(t);
+  }
+
+  // =====================================================
+  // TASK ACTIONS
+  // =====================================================
+  async function handleStatusChange(task, newStatus) {
+    if (newStatus === task.status) return;
+    if (!confirm(`¿Cambiar el estado a "${STATUS[newStatus].label}"?`)) return;
+    try {
+      const ref = doc(db, "tasks", task.id);
+      const histEntry = {
+        from: task.status,
+        to: newStatus,
+        at: Timestamp.now(),
+        byUid: state.user.uid,
+        byName: state.userData.name,
+        byRole: state.userData.role
+      };
+      await updateDoc(ref, {
+        status: newStatus,
+        history: arrayUnion(histEntry),
+        updatedAt: serverTimestamp()
+      });
+
+      // Notify by email based on transition
+      await notifyStatusChange(task, newStatus);
+    } catch (err) {
+      console.error(err);
+      alert("Error al cambiar el estado: " + err.message);
+    }
+  }
+
+  async function submitComment(task) {
+    const txt = $("comment-text").value.trim();
+    if (!txt) return;
+    clearError("comment-error");
+    try {
+      // Add comment
+      await addDoc(collection(db, "tasks", task.id, "comments"), {
+        text: txt,
+        byUid: state.user.uid,
+        byName: state.userData.name,
+        byEmail: state.user.email,
+        byRole: state.userData.role,
+        createdAt: serverTimestamp()
+      });
+      // Increment count + updatedAt on parent
+      await updateDoc(doc(db, "tasks", task.id), {
+        commentsCount: (task.commentsCount || 0) + 1,
+        updatedAt: serverTimestamp()
+      });
+      $("comment-text").value = "";
+      // Notify
+      await notifyComment(task, txt);
+    } catch (err) {
+      console.error(err);
+      showError("comment-error", "No se pudo enviar el comentario: " + err.message);
+    }
+  }
+
+  // =====================================================
+  // EMAIL NOTIFICATIONS (via Trigger Email extension)
+  // Writes to /mail collection. The extension sends them.
+  // =====================================================
+  async function getRecipientsByRole(roles) {
+    if (!state.users.length) await loadUsers();
+    return state.users
+      .filter(u => roles.includes(u.role) && u.email)
+      .map(u => u.email);
+  }
+  async function loadUsers() {
+    try {
+      const snap = await getDocs(collection(db, "users"));
+      state.users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (err) {
+      console.warn("No se pudieron cargar usuarios:", err.message);
+      state.users = [];
+    }
+  }
+
+  async function sendMail(toList, subject, htmlBody) {
+    if (!toList || !toList.length) return;
+    try {
+      await addDoc(collection(db, "mail"), {
+        to: toList,
+        message: {
+          subject,
+          html: htmlBody
+        }
+      });
+    } catch (err) {
+      console.warn("No se pudo encolar el correo:", err.message);
+    }
+  }
+
+  function emailTemplate(title, intro, taskTitle, taskUrl, body) {
+    return `
+      <div style="font-family: -apple-system, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color: #1a1814;">
+        <div style="border-bottom: 1px solid #e8e2d5; padding-bottom: 12px; margin-bottom: 20px;">
+          <div style="font-family: Georgia, serif; font-size: 20px;">${BUILDING_NAME} · Tareas</div>
+        </div>
+        <h2 style="font-family: Georgia, serif; font-size: 22px; margin: 0 0 8px;">${title}</h2>
+        <p style="color: #5a534a; margin: 0 0 16px;">${intro}</p>
+        <div style="background: #faf8f3; border: 1px solid #e8e2d5; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+          <div style="font-weight: 600; margin-bottom: 8px;">${escapeHtml(taskTitle)}</div>
+          <div style="color: #5a534a; white-space: pre-wrap;">${body}</div>
+        </div>
+        ${taskUrl ? `<a href="${taskUrl}" style="display:inline-block; padding:10px 16px; background:#1a1814; color:#faf8f3; text-decoration:none; border-radius:8px;">Ver tarea</a>` : ""}
+        <p style="color: #8a8175; font-size: 12px; margin-top: 24px;">Este correo se envió automáticamente desde la app de tareas del edificio ${BUILDING_NAME}.</p>
+      </div>
+    `;
+  }
+
+  async function notifyComment(task, commentText) {
+    await loadUsers();
+    const myRole = state.userData.role;
+    let toRoles = [];
+    if (myRole === "owner") toRoles = ["encargado"];
+    else if (myRole === "encargado") {
+      // Email al propietario que creó la tarea
+      const owner = state.users.find(u => u.id === task.createdBy);
+      if (owner?.email) {
+        await sendMail([owner.email],
+          `[${BUILDING_NAME}] Nuevo comentario en "${task.title}"`,
+          emailTemplate(
+            "Nuevo comentario del encargado",
+            `${escapeHtml(state.userData.name)} comentó en una tarea que creaste:`,
+            task.title, "",
+            escapeHtml(commentText)
+          )
+        );
+      }
+      return;
+    } else if (myRole === "administracion") {
+      // Email al propietario + encargado
+      const owner = state.users.find(u => u.id === task.createdBy);
+      const recipients = state.users.filter(u => u.role === "encargado").map(u => u.email);
+      if (owner?.email) recipients.push(owner.email);
+      if (recipients.length) {
+        await sendMail(recipients,
+          `[${BUILDING_NAME}] Comentario de administración en "${task.title}"`,
+          emailTemplate(
+            "Nuevo comentario de administración",
+            `${escapeHtml(state.userData.name)} (administración) comentó en una tarea:`,
+            task.title, "",
+            escapeHtml(commentText)
+          )
+        );
+      }
+      return;
+    }
+    if (toRoles.length) {
+      const recipients = await getRecipientsByRole(toRoles);
+      if (recipients.length) {
+        await sendMail(recipients,
+          `[${BUILDING_NAME}] Nuevo comentario en "${task.title}"`,
+          emailTemplate(
+            "Nuevo comentario",
+            `${escapeHtml(state.userData.name)} (${ROLES[myRole]}) comentó:`,
+            task.title, "",
+            escapeHtml(commentText)
+          )
+        );
+      }
+    }
+  }
+
+  async function notifyStatusChange(task, newStatus) {
+    await loadUsers();
+    const myRole = state.userData.role;
+    const owner = state.users.find(u => u.id === task.createdBy);
+    let recipients = [];
+    let title = "Cambio de estado";
+    let intro = `${escapeHtml(state.userData.name)} cambió el estado a "${STATUS[newStatus].label}".`;
+
+    if (newStatus === "en_administracion") {
+      // Avisar a administración + propietario
+      const adminEmails = state.users.filter(u => u.role === "administracion").map(u => u.email);
+      if (owner?.email) adminEmails.push(owner.email);
+      recipients = adminEmails;
+      title = "Tarea enviada a administración";
+    } else if (newStatus === "realizada" || newStatus === "rechazada") {
+      // Avisar al propietario que creó la tarea.
+      // Si es administración la que cambió el estado, también avisar al encargado.
+      if (owner?.email) recipients.push(owner.email);
+      if (myRole === "administracion") {
+        const encEmails = state.users.filter(u => u.role === "encargado").map(u => u.email);
+        recipients = recipients.concat(encEmails);
+      }
+    } else if (newStatus === "pendiente") {
+      // Avisar al encargado (y al propietario si la devolvió administración)
+      recipients = state.users.filter(u => u.role === "encargado").map(u => u.email);
+      if (myRole === "administracion" && owner?.email) recipients.push(owner.email);
+    }
+
+    if (recipients.length) {
+      await sendMail(recipients,
+        `[${BUILDING_NAME}] ${title}: "${task.title}"`,
+        emailTemplate(title, intro, task.title, "",
+          `Nuevo estado: <strong>${STATUS[newStatus].label}</strong>`)
+      );
+    }
+  }
+
+  // =====================================================
+  // NEW TASK
+  // =====================================================
+  $("fab-new-task").onclick = openNewTaskSheet;
+  $("nt-cancel").onclick = closeNewTaskSheet;
+  $("sheet-overlay").onclick = closeAllSheets;
+  $("nt-files-btn").onclick = () => $("nt-files").click();
+  $("nt-files").addEventListener("change", (e) => {
+    const files = Array.from(e.target.files);
+    state.newTaskFiles = state.newTaskFiles.concat(files);
+    renderFilePreviews();
+    e.target.value = "";
+  });
+
+  function renderFilePreviews() {
+    const list = $("nt-file-list");
+    list.innerHTML = "";
+    state.newTaskFiles.forEach((file, idx) => {
+      const url = URL.createObjectURL(file);
+      const div = document.createElement("div");
+      div.className = "file-preview";
+      div.innerHTML = `
+        <img src="${url}" alt="" />
+        <button type="button" data-idx="${idx}">×</button>
+      `;
+      div.querySelector("button").onclick = () => {
+        state.newTaskFiles.splice(idx, 1);
+        renderFilePreviews();
+      };
+      list.appendChild(div);
+    });
+  }
+
+  function openNewTaskSheet() {
+    state.newTaskFiles = [];
+    $("nt-title").value = "";
+    $("nt-desc").value = "";
+    $("nt-file-list").innerHTML = "";
+    clearError("new-task-error");
+    $("sheet-overlay").classList.add("active");
+    $("sheet-new-task").classList.add("active");
+  }
+  function closeNewTaskSheet() {
+    $("sheet-overlay").classList.remove("active");
+    $("sheet-new-task").classList.remove("active");
+  }
+  function closeAllSheets() {
+    closeNewTaskSheet();
+    closeNewUserSheet();
+  }
+
+  $("new-task-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearError("new-task-error");
+    const btn = $("nt-submit");
+    btn.disabled = true; btn.textContent = "Creando…";
+    try {
+      const title = $("nt-title").value.trim();
+      const description = $("nt-desc").value.trim();
+      if (!title || !description) throw new Error("Completá título y descripción.");
+
+      // Create task first to get ID for storage
+      const taskData = {
+        title,
+        description,
+        status: "pendiente",
+        photos: [],
+        createdBy: state.user.uid,
+        createdByName: state.userData.name,
+        createdByEmail: state.user.email,
+        createdByApt: state.userData.apartment || "",
+        createdByRole: state.userData.role,
+        commentsCount: 0,
+        history: [],
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+      const taskRef = await addDoc(collection(db, "tasks"), taskData);
+
+      // Upload photos
+      const photoUrls = [];
+      for (let i = 0; i < state.newTaskFiles.length; i++) {
+        const file = state.newTaskFiles[i];
+        btn.textContent = `Subiendo ${i+1}/${state.newTaskFiles.length}…`;
+        const fname = `${Date.now()}_${i}_${file.name.replace(/[^a-zA-Z0-9._-]/g,"")}`;
+        const ref = storageRef(storage, `tasks/${taskRef.id}/${fname}`);
+        await uploadBytes(ref, file);
+        const url = await getDownloadURL(ref);
+        photoUrls.push(url);
+      }
+      if (photoUrls.length) {
+        await updateDoc(taskRef, { photos: photoUrls });
+      }
+
+      // Notify encargado
+      await loadUsers();
+      const recipients = state.users.filter(u => u.role === "encargado").map(u => u.email);
+      if (recipients.length) {
+        await sendMail(recipients,
+          `[${BUILDING_NAME}] Nueva tarea: "${title}"`,
+          emailTemplate(
+            "Nueva tarea creada",
+            `${escapeHtml(state.userData.name)} creó una nueva tarea:`,
+            title, "",
+            escapeHtml(description)
+          )
+        );
+      }
+
+      closeNewTaskSheet();
+    } catch (err) {
+      console.error(err);
+      showError("new-task-error", err.message);
+    } finally {
+      btn.disabled = false; btn.textContent = "Crear tarea";
+    }
+  });
+
+  // =====================================================
+  // PHOTO MODAL
+  // =====================================================
+  function openPhoto(url) {
+    $("photo-modal-img").src = url;
+    $("photo-modal").classList.add("active");
+  }
+  $("photo-modal-close").onclick = () => $("photo-modal").classList.remove("active");
+  $("photo-modal").addEventListener("click", (e) => {
+    if (e.target.id === "photo-modal") $("photo-modal").classList.remove("active");
+  });
+
+  // =====================================================
+  // REPORTS
+  // =====================================================
+  function renderReports() {
+    // Default range: last 30 days
+    const today = new Date();
+    const monthAgo = new Date(); monthAgo.setDate(today.getDate() - 30);
+    const fmtDate = (d) => d.toISOString().slice(0, 10);
+
+    const fromVal = state.reportFrom || fmtDate(monthAgo);
+    const toVal = state.reportTo || fmtDate(today);
+
+    const fromDate = new Date(fromVal + "T00:00:00");
+    const toDate = new Date(toVal + "T23:59:59");
+
+    const all = visibleTasks();
+    const filtered = all.filter(t => {
+      if (!t.createdAt?.toDate) return false;
+      const d = t.createdAt.toDate();
+      return d >= fromDate && d <= toDate;
+    });
+
+    // Group by status
+    const counts = {};
+    Object.keys(STATUS).forEach(k => counts[k] = 0);
+    filtered.forEach(t => counts[t.status] = (counts[t.status] || 0) + 1);
+    const total = filtered.length;
+    const maxCount = Math.max(1, ...Object.values(counts));
+
+    // Resolution time: solo para tareas en estado realizada
+    const resolved = filtered.filter(t => t.status === "realizada" && t.history?.length);
+    const resolutionTimes = resolved.map(t => {
+      const last = [...t.history].reverse().find(h => h.to === t.status);
+      if (!last?.at?.toDate || !t.createdAt?.toDate) return null;
+      return (last.at.toDate() - t.createdAt.toDate()) / (1000 * 60 * 60); // horas
+    }).filter(x => x !== null);
+    const avgHours = resolutionTimes.length ? (resolutionTimes.reduce((a,b)=>a+b,0) / resolutionTimes.length) : 0;
+    const avgDays = avgHours / 24;
+
+    const statusColors = {
+      pendiente: "var(--st-pending)",
+      realizada: "var(--st-done)",
+      rechazada: "var(--st-rejected)",
+      en_administracion: "var(--st-admin)"
+    };
+
+    const html = `
+      <div class="page-title"><h1>Reportes</h1></div>
+
+      <div class="date-range">
+        <div>
+          <label>Desde</label>
+          <input type="date" class="input" id="rep-from" value="${fromVal}" />
+        </div>
+        <div>
+          <label>Hasta</label>
+          <input type="date" class="input" id="rep-to" value="${toVal}" />
+        </div>
+      </div>
+
+      <div class="report-grid">
+        <div class="report-card">
+          <div class="label">Total</div>
+          <div class="value">${total}</div>
+          <div class="sub">tareas en el rango</div>
+        </div>
+        <div class="report-card">
+          <div class="label">Tiempo prom.</div>
+          <div class="value">${avgDays >= 1 ? avgDays.toFixed(1) : avgHours.toFixed(1)}</div>
+          <div class="sub">${avgDays >= 1 ? "días de resolución" : "horas de resolución"}</div>
+        </div>
+      </div>
+
+      <div class="report-card full" style="margin-bottom:1rem">
+        <div class="label" style="margin-bottom:.85rem">Por estado</div>
+        ${Object.keys(STATUS).map(k => `
+          <div class="bar-row">
+            <span class="name">${STATUS[k].label}</span>
+            <span class="bar-track"><span class="bar-fill" style="width:${(counts[k]/maxCount)*100}%; background:${statusColors[k]}"></span></span>
+            <span class="num">${counts[k]}</span>
+          </div>
+        `).join("")}
+      </div>
+
+      <div class="report-card full">
+        <div class="label" style="margin-bottom:.6rem">Detalle</div>
+        ${filtered.length === 0 ? `<p style="color:var(--ink-3); font-size:.85rem">Sin tareas en este rango.</p>` : `
+          <div style="display:flex; flex-direction:column; gap:.5rem; font-size:.85rem;">
+            ${filtered.slice(0, 50).map(t => {
+              let resTime = "—";
+              if (t.status === "realizada" && t.history?.length) {
+                const last = [...t.history].reverse().find(h => h.to === t.status);
+                if (last?.at?.toDate) {
+                  const hours = (last.at.toDate() - t.createdAt.toDate()) / (1000 * 60 * 60);
+                  resTime = hours >= 24 ? `${(hours/24).toFixed(1)}d` : `${hours.toFixed(1)}h`;
+                }
+              }
+              return `
+                <div style="display:flex; gap:.5rem; align-items:center; padding:.4rem 0; border-top:1px solid var(--border)">
+                  <span class="badge ${STATUS[t.status].className}" style="font-size:.65rem">${STATUS[t.status].label}</span>
+                  <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(t.title)}</span>
+                  <span style="color:var(--ink-3); font-size:.78rem">${resTime}</span>
+                </div>
+              `;
+            }).join("")}
+            ${filtered.length > 50 ? `<p style="color:var(--ink-3); font-size:.78rem; margin-top:.5rem">Mostrando 50 de ${filtered.length}.</p>` : ""}
+          </div>
+        `}
+      </div>
+    `;
+
+    $("main-content").innerHTML = html;
+
+    $("rep-from").onchange = (e) => { state.reportFrom = e.target.value; renderReports(); };
+    $("rep-to").onchange = (e) => { state.reportTo = e.target.value; renderReports(); };
+  }
+
+  // =====================================================
+  // USERS (admin only)
+  // =====================================================
+  async function renderUsers() {
+    if (state.userData.role !== "admin") {
+      $("main-content").innerHTML = `<div class="info-msg">No tenés permiso para ver esta sección.</div>`;
+      return;
+    }
+    $("main-content").innerHTML = `<div class="loader"><div class="spinner"></div></div>`;
+    await loadUsers();
+
+    const html = `
+      <div class="page-title">
+        <h1>Usuarios</h1>
+        <span class="count">${state.users.length}</span>
+      </div>
+      <button class="btn btn-primary btn-block" id="add-user-btn" style="margin-bottom:1rem">+ Nuevo usuario</button>
+      ${state.users.map(u => `
+        <div class="user-row">
+          <div class="avatar">${initials(u.name)}</div>
+          <div class="info">
+            <div class="name">${escapeHtml(u.name || "(sin nombre)")} ${u.apartment ? `<span style="color:var(--ink-3); font-weight:400; font-size:.78rem">· ${escapeHtml(u.apartment)}</span>` : ""}</div>
+            <div class="email">${escapeHtml(u.email || "")}</div>
+          </div>
+          <select class="select role-select" data-uid="${u.id}">
+            ${Object.entries(ROLES).map(([key, label]) =>
+              `<option value="${key}" ${u.role === key ? "selected" : ""}>${label}</option>`
+            ).join("")}
+          </select>
+        </div>
+      `).join("")}
+    `;
+    $("main-content").innerHTML = html;
+
+    $("add-user-btn").onclick = openNewUserSheet;
+    document.querySelectorAll(".role-select").forEach(sel => {
+      sel.onchange = async (e) => {
+        const uid = sel.dataset.uid;
+        const newRole = e.target.value;
+        if (!confirm(`¿Cambiar rol a "${ROLES[newRole]}"?`)) {
+          renderUsers(); return;
+        }
+        try {
+          await updateDoc(doc(db, "users", uid), { role: newRole });
+          await loadUsers();
+        } catch (err) {
+          alert("Error: " + err.message);
+        }
+      };
+    });
+  }
+
+  function openNewUserSheet() {
+    $("nu-name").value = "";
+    $("nu-email").value = "";
+    $("nu-pass").value = "";
+    $("nu-apt").value = "";
+    $("nu-role").value = "owner";
+    clearError("new-user-error");
+    $("sheet-overlay").classList.add("active");
+    $("sheet-new-user").classList.add("active");
+  }
+  function closeNewUserSheet() {
+    $("sheet-overlay").classList.remove("active");
+    $("sheet-new-user").classList.remove("active");
+  }
+  $("nu-cancel").onclick = closeNewUserSheet;
+
+  $("new-user-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearError("new-user-error");
+    const btn = $("nu-submit");
+    btn.disabled = true; btn.textContent = "Creando…";
+    try {
+      const name = $("nu-name").value.trim();
+      const email = $("nu-email").value.trim();
+      const pass = $("nu-pass").value;
+      const role = $("nu-role").value;
+      const apartment = $("nu-apt").value.trim();
+      if (!name || !email || !pass) throw new Error("Completá nombre, correo y contraseña.");
+      if (pass.length < 6) throw new Error("La contraseña debe tener al menos 6 caracteres.");
+
+      // Create on secondary auth so admin doesn't get logged out
+      const cred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+      const newUid = cred.user.uid;
+      await setDoc(doc(db, "users", newUid), {
+        name, email, role, apartment,
+        createdAt: serverTimestamp(),
+        createdBy: state.user.uid
+      });
+      await signOut(secondaryAuth);
+      await renderUsers();
+      closeNewUserSheet();
+    } catch (err) {
+      console.error(err);
+      let msg = err.message;
+      if (err.code === "auth/email-already-in-use") msg = "Ese correo ya está registrado.";
+      else if (err.code === "auth/weak-password") msg = "La contraseña es muy débil.";
+      else if (err.code === "auth/invalid-email") msg = "Correo inválido.";
+      showError("new-user-error", msg);
+    } finally {
+      btn.disabled = false; btn.textContent = "Crear usuario";
+    }
+  });
+
+  // =====================================================
+  // SPLASH timeout fallback
+  // =====================================================
+  setTimeout(() => $("splash").classList.add("hide"), 4000);
+
+</script>
+</body>
+</html>
