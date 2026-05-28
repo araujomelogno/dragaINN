@@ -459,16 +459,27 @@
 
   /* ===== Users (admin) ===== */
   .user-row {
-    display: flex; align-items: center; gap: .75rem;
-    padding: .85rem; background: var(--surface);
+    display: flex; flex-wrap: wrap; align-items: center; gap: .55rem .75rem;
+    padding: .9rem; background: var(--surface);
     border: 1px solid var(--border); border-radius: var(--radius);
     margin-bottom: .55rem;
   }
   .user-row .avatar { width: 38px; height: 38px; flex-shrink: 0; }
   .user-row .info { flex: 1; min-width: 0; }
-  .user-row .info .name { font-weight: 500; font-size: .92rem; }
-  .user-row .info .email { font-size: .78rem; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .user-row .role-select { font-size: .8rem; padding: .4rem .55rem; }
+  .user-row .info .name {
+    font-weight: 500; font-size: .92rem; line-height: 1.3;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .user-row .info .email {
+    font-size: .78rem; color: var(--ink-3);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  /* El selector de rol va en su propia fila a ancho completo para no
+     solaparse con el nombre/email en pantallas angostas. */
+  .user-row .role-select {
+    flex: 1 0 100%; width: 100%;
+    font-size: .85rem; padding: .55rem .7rem;
+  }
 
   /* ===== Loader ===== */
   .loader {
