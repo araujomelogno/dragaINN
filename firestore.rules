@@ -49,8 +49,9 @@ service cloud.firestore {
                       || (isOwner() && resource.data.createdBy == request.auth.uid)
                     );
 
-      // Borrar: solo admin.
-      allow delete: if isAdmin();
+      // Borrar: admin, o el propietario que creó la tarea.
+      allow delete: if isAdmin()
+                    || (isOwner() && resource.data.createdBy == request.auth.uid);
 
       // Comentarios anidados
       match /comments/{commentId} {
@@ -58,7 +59,10 @@ service cloud.firestore {
         allow create: if isSignedIn()
                       && request.resource.data.byUid == request.auth.uid;
         allow update: if false;  // Comentarios inmutables
-        allow delete: if isAdmin();
+        // Borrar: admin, o el propietario de la tarea (para poder borrarla con sus comentarios).
+        allow delete: if isAdmin()
+                      || (isOwner()
+                          && get(/databases/$(database)/documents/tasks/$(taskId)).data.createdBy == request.auth.uid);
       }
     }
 

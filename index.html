@@ -3,34 +3,34 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#faf8f3" />
+<meta name="theme-color" content="#f1f5f1" />
 <title>DRAGA · Tareas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300..700&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --bg: #faf8f3;
+    --bg: #f1f5f1;
     --surface: #ffffff;
-    --surface-2: #f3efe6;
-    --ink: #1a1814;
-    --ink-2: #5a534a;
-    --ink-3: #8a8175;
-    --border: #e8e2d5;
-    --border-strong: #d4ccba;
-    --accent: #c4583a;
-    --accent-soft: #f5e1d8;
-    --st-pending: #b88a1f;
-    --st-pending-bg: #fbf1d6;
-    --st-done: #4d7841;
-    --st-done-bg: #e3edd9;
-    --st-rejected: #a23f29;
-    --st-rejected-bg: #f5dfd7;
-    --st-admin: #3e5a76;
-    --st-admin-bg: #dbe5ef;
-    --shadow-sm: 0 1px 2px rgba(26,24,20,.04), 0 1px 1px rgba(26,24,20,.03);
-    --shadow-md: 0 4px 12px rgba(26,24,20,.06), 0 2px 4px rgba(26,24,20,.04);
-    --shadow-lg: 0 12px 32px rgba(26,24,20,.10), 0 4px 8px rgba(26,24,20,.05);
+    --surface-2: #e4ede4;
+    --ink: #11241a;
+    --ink-2: #3f5447;
+    --ink-3: #76887d;
+    --border: #dae6da;
+    --border-strong: #bccdbe;
+    --accent: #0a5c36;
+    --accent-soft: #d6ebdd;
+    --st-pending: #8a6d1a;
+    --st-pending-bg: #f3edd4;
+    --st-done: #1b6e44;
+    --st-done-bg: #d8ecdf;
+    --st-rejected: #9a3b2a;
+    --st-rejected-bg: #f3dcd6;
+    --st-admin: #2f6d5a;
+    --st-admin-bg: #d6ece6;
+    --shadow-sm: 0 1px 2px rgba(17,36,26,.05), 0 1px 1px rgba(17,36,26,.04);
+    --shadow-md: 0 4px 12px rgba(17,36,26,.07), 0 2px 4px rgba(17,36,26,.05);
+    --shadow-lg: 0 12px 32px rgba(17,36,26,.12), 0 4px 8px rgba(17,36,26,.06);
     --radius: 14px;
     --radius-sm: 10px;
     --radius-lg: 20px;
@@ -70,8 +70,8 @@
     align-items: center; justify-content: center;
     padding: 2rem; min-height: 100dvh;
     background:
-      radial-gradient(circle at 15% 0%, #efe6d3 0%, transparent 40%),
-      radial-gradient(circle at 90% 100%, #f5d8cc 0%, transparent 35%),
+      radial-gradient(circle at 15% 0%, #d6e8da 0%, transparent 40%),
+      radial-gradient(circle at 90% 100%, #c7e0d0 0%, transparent 35%),
       var(--bg);
   }
   .login-card {
@@ -116,9 +116,9 @@
   }
   .btn:active { transform: scale(.98); }
   .btn-primary { background: var(--ink); color: var(--bg); }
-  .btn-primary:hover { background: #2a2620; }
+  .btn-primary:hover { background: #0a1c12; }
   .btn-accent { background: var(--accent); color: white; }
-  .btn-accent:hover { background: #a8472d; }
+  .btn-accent:hover { background: #074427; }
   .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--border-strong); }
   .btn-ghost:hover { background: var(--surface-2); }
   .btn-danger { background: var(--st-rejected-bg); color: var(--st-rejected); border: 1px solid transparent; }
@@ -1110,6 +1110,15 @@
         </div>
       ` : ""}
 
+      ${(role === "owner" && t.createdBy === state.user.uid) ? `
+        <div class="section">
+          <h2>Acciones</h2>
+          <div class="action-bar">
+            <button class="btn btn-danger" id="delete-task">Borrar tarea</button>
+          </div>
+        </div>
+      ` : ""}
+
       <div class="section">
         <h2>Comentarios (${comments.length})</h2>
         ${comments.length === 0 ? `<p style="color:var(--ink-3); font-size:.88rem">Aún no hay comentarios.</p>` : `
@@ -1150,6 +1159,9 @@
       img.onclick = () => openPhoto(img.dataset.url);
     });
 
+    const deleteBtn = $("delete-task");
+    if (deleteBtn) deleteBtn.onclick = () => handleDeleteTask(t);
+
     $("comment-submit").onclick = () => submitComment(t);
   }
 
@@ -1180,6 +1192,23 @@
     } catch (err) {
       console.error(err);
       alert("Error al cambiar el estado: " + err.message);
+    }
+  }
+
+  async function handleDeleteTask(task) {
+    // Solo el propietario que creó la tarea puede borrarla desde acá.
+    if (state.userData.role !== "owner" || task.createdBy !== state.user.uid) return;
+    if (!confirm(`¿Borrar la tarea "${task.title}"? Esta acción no se puede deshacer.`)) return;
+    try {
+      // Borrar los comentarios asociados antes de borrar la tarea.
+      const commentsSnap = await getDocs(collection(db, "tasks", task.id, "comments"));
+      await Promise.all(commentsSnap.docs.map(d => deleteDoc(d.ref)));
+      // Borrar la tarea.
+      await deleteDoc(doc(db, "tasks", task.id));
+      closeTask();
+    } catch (err) {
+      console.error(err);
+      alert("Error al borrar la tarea: " + err.message);
     }
   }
 
@@ -1248,18 +1277,18 @@
 
   function emailTemplate(title, intro, taskTitle, taskUrl, body) {
     return `
-      <div style="font-family: -apple-system, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color: #1a1814;">
-        <div style="border-bottom: 1px solid #e8e2d5; padding-bottom: 12px; margin-bottom: 20px;">
-          <div style="font-family: Georgia, serif; font-size: 20px;">${BUILDING_NAME} · Tareas</div>
+      <div style="font-family: -apple-system, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color: #11241a;">
+        <div style="border-bottom: 1px solid #dae6da; padding-bottom: 12px; margin-bottom: 20px;">
+          <div style="font-family: Georgia, serif; font-size: 20px; color: #0a5c36;">${BUILDING_NAME} · Tareas</div>
         </div>
         <h2 style="font-family: Georgia, serif; font-size: 22px; margin: 0 0 8px;">${title}</h2>
-        <p style="color: #5a534a; margin: 0 0 16px;">${intro}</p>
-        <div style="background: #faf8f3; border: 1px solid #e8e2d5; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+        <p style="color: #3f5447; margin: 0 0 16px;">${intro}</p>
+        <div style="background: #f1f5f1; border: 1px solid #dae6da; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
           <div style="font-weight: 600; margin-bottom: 8px;">${escapeHtml(taskTitle)}</div>
-          <div style="color: #5a534a; white-space: pre-wrap;">${body}</div>
+          <div style="color: #3f5447; white-space: pre-wrap;">${body}</div>
         </div>
-        ${taskUrl ? `<a href="${taskUrl}" style="display:inline-block; padding:10px 16px; background:#1a1814; color:#faf8f3; text-decoration:none; border-radius:8px;">Ver tarea</a>` : ""}
-        <p style="color: #8a8175; font-size: 12px; margin-top: 24px;">Este correo se envió automáticamente desde la app de tareas del edificio ${BUILDING_NAME}.</p>
+        ${taskUrl ? `<a href="${taskUrl}" style="display:inline-block; padding:10px 16px; background:#0a5c36; color:#f1f5f1; text-decoration:none; border-radius:8px;">Ver tarea</a>` : ""}
+        <p style="color: #76887d; font-size: 12px; margin-top: 24px;">Este correo se envió automáticamente desde la app de tareas del edificio ${BUILDING_NAME}.</p>
       </div>
     `;
   }
